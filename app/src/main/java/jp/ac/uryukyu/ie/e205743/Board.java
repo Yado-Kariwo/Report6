@@ -1,22 +1,36 @@
 package jp.ac.uryukyu.ie.e205743;
 
 import java.util.Scanner;
+/**
+ * ボードクラス
+ * int length; //横方向の長さ
+ * int height; //縦方向の長さ
+ * String board; 五目並べのボードの情報
+ * String EMPRY; //何もない状態
+ * String BLACK; //先手、黒の石
+ * String WHITE; //後手、白の石
+ * String[] turn; //ゲームの順番
+ * boolean judge; //ゲームが終了しているかどうか
+ */
 
 public class Board {
 
-    static final int length = 15; // 横方向の長さ
-    static final int height = 15; // 縦方向の長さ
-    static String[][] board = new String[length][height]; // 五目並べのボード
-    static final String EMPTY = "　"; // 何も置かれていない時の中身
-    static final String BLACK = "⚫️"; // 先手の色
-    static final String WHITE = "⚪️"; // 後手の色
-    private String[] turn = { BLACK, WHITE }; // 順番
+    static final int length = 15; 
+    static final int height = 15; 
+    static String[][] board = new String[length][height]; 
+    static final String EMPTY = "　"; 
+    static final String BLACK = "⚫️"; 
+    static final String WHITE = "⚪️"; 
+    private String[] turn = { BLACK, WHITE }; 
+    private boolean judge = false;
 
-    public String[] getTurn() {
-        return turn;
-    }
+    public String[] getTurn() { return turn; }
 
-    // 盤上を全部何も置かれていない状態にする
+    public boolean getJudge(){ return this.judge; }
+
+    /**
+     * 盤上を全部何も置かれていない状態にする
+     */
     public void clearBoard() {
         for (int x = 0; x < length; x++) {
             for (int y = 0; y < height; y++) {
@@ -25,13 +39,17 @@ public class Board {
         }
     }
 
-    // インスタンス化した時にはないも置かれていない
+    /**
+     * コンストラクタ　インスタンス化した時にはないも置かれていない
+     */
     public Board() {
         clearBoard();
     }
 
-    // ボードを表示する
-    // 縦と横にはそれぞれメモリが表示される(0~14)
+    /**
+     * ボードを表示する
+     * 縦と横にはそれぞれメモリが表示される(0~14)
+     */
     public void outputBoard() {
         int numLength = 0;
         System.out.println("  |０|１|２|３|４|５|６|７|８|９|10|11|12|13|14|");
@@ -55,17 +73,24 @@ public class Board {
                 System.out.println("");
             }
         }
-
     }
 
-    // 指定された座標に指定された色の石を置く
+    /**
+     * 指定された座標に指定された色の石を置く
+     * @param x 横方向の座標
+     * @param y 縦方向の座標
+     * @param col 石の色
+     */
     public void putGoishi(int x, int y, String col) {
         if (col == BLACK || col == WHITE) {
             board[x][y] = col;
         }
     }
 
-    // 入力した数字が想定されたボードの範囲内かどうかを確認する
+    /**
+     * 入力した数字が想定されたボードの範囲内かどうかを確認する
+     * @param cooedinate 入力した座標
+     */
     public boolean checkCoordinate(int coordinate) {
         boolean result;
         if (coordinate <= length || coordinate <= height) {
@@ -77,7 +102,12 @@ public class Board {
         return result;
     }
 
-    // 指定された座標に何もないか確認する
+    /**
+     * 指定された座標に何もないか確認する
+     * @param x 横方向の座標
+     * @param y 縦方向の座標
+     * @return result 置いてもいいかどうか
+     */
     public boolean checkBoard(int x, int y) {
         boolean result;
         if (board[x][y] == EMPTY) {
@@ -89,13 +119,15 @@ public class Board {
         return result;
     }
 
-    // 入力した座標に石を置く
-    // putGoishi()、checkBoard()、checkCoodinate()を使い正しく石が置かれるまで入力を繰り返す
-    public boolean inputCoordinate(String col, Scanner scanner) {
+    /**
+     * 入力した座標に石を置く
+     * putGoishi()、checkBoard()、checkCoodinate()を使い正しく石が置かれるまで入力を繰り返す
+     * @param col 石の色
+     * @param scanner キーボードで入力するため
+     */
+    public void inputCoordinate(String col, Scanner scanner) {
         int xCoordinate;
         int yCoordinate;
-        boolean judge = false;
-        boolean game;
         while (true) {
             while (true) {
                 System.out.println("x座標を入力してください");
@@ -119,18 +151,13 @@ public class Board {
                 putGoishi(xCoordinate, yCoordinate, col);
                 break;
             }
-            if (judge(xCoordinate, yCoordinate, col)) {
-                System.out.printf("%sの勝利", col);
-                judge = true;
-                break;
-            }
         }
-        return judge;
     }
 
-    // 黒、白の順に石を置いていき、ボードを表示する
+    /**
+     * 黒、白の順に石を置いていき、ボードを表示する
+     */
     public void turn() {
-        boolean game = false;
         Scanner scanner = new Scanner(System.in);
         for (String col : turn) {
             if (col == BLACK) {
@@ -139,15 +166,46 @@ public class Board {
             if (col == WHITE) {
                 System.out.println("後手の番です");
             }
-            game = inputCoordinate(col, scanner);
+            inputCoordinate(col, scanner);
             outputBoard();
-            if (game) {
-                System.out.printf("%sの勝利です", col);
-            }
         }
     }
 
-    // 指定した座標の右隣に同じ色の石があるか調べる
+    /*
+    public String nextValue(int firstValue, int yValue){
+        String next = board[firstValue][yValue + 1];
+        return next;
+    }
+
+    public int serchX(){
+        int num = 1;
+        String next;
+        for (int x = 0; x < length; x ++){
+            for (int y = 0; y < height; y ++){
+                if(board[x][y] != EMPTY){
+                    next = nextValue(x, y);
+                    if(next == EMPTY){
+                        continue;
+                    }
+                    if(board[x][y] == next){
+
+                    }
+                }
+            }
+        }
+        return num;
+    }
+    */
+
+    
+    /**
+     * 指定した座標の右隣に同じ色の石があるか調べる
+     * @param x 横方向の座標
+     * @param y　縦方向の座標
+     * @param col　石の色
+     * @param i 何番目隣なのか
+     * @return result 同じ石があるかどうか
+     */
     public boolean checkRight(int x, int y, String col, int i) {
         boolean result = false;
         String right;
@@ -160,7 +218,14 @@ public class Board {
         return result;
     }
 
-    // 指定した座標の左隣に同じ色の石があるか調べる
+    /**
+     * 指定した座標の左隣に同じ色の石があるか調べる
+     * @param x 横方向の座標
+     * @param y　縦方向の座標
+     * @param col　石の色
+     * @param i 何番目隣なのか
+     * @return result 同じ石があるかどうか
+     */
     public boolean checkLeft(int x, int y, String col, int i) {
         boolean result = false;
         String left;
@@ -173,7 +238,14 @@ public class Board {
         return result;
     }
 
-    // 指定した座標の上に同じ色の石があるか調べる
+    /**
+     * 指定した座標の上に同じ色の石があるか調べる
+     * @param x 横方向の座標
+     * @param y　縦方向の座標
+     * @param col　石の色
+     * @param i 何番目隣なのか
+     * @return result 同じ石があるかどうか
+     */
     public boolean checkUp(int x, int y, String col, int i) {
         boolean result = false;
         String up;
@@ -186,7 +258,14 @@ public class Board {
         return result;
     }
 
-    // 指定した座標の下に同じ色の石があるか調べる
+    /**
+     * 指定した座標の下に同じ色の石があるか調べる
+     * @param x 横方向の座標
+     * @param y　縦方向の座標
+     * @param col　石の色
+     * @param i 何番目隣なのか
+     * @return result 同じ石があるかどうか
+     */
     public boolean checkDown(int x, int y, String col, int i) {
         boolean result = false;
         String down;
@@ -199,6 +278,14 @@ public class Board {
         return result;
     }
 
+    /**
+     * 指定した座標の右斜め上に同じ色の石があるか調べる
+     * @param x 横方向の座標
+     * @param y　縦方向の座標
+     * @param col　石の色
+     * @param i 何番目隣なのか
+     * @return result 同じ石があるかどうか
+     */
     public boolean checkUpRCorner(int x, int y, String col, int i) {
         boolean result = false;
         String upRCorner;
@@ -211,6 +298,14 @@ public class Board {
         return result;
     }
 
+    /**
+     * 指定した座標の左斜め上に同じ色の石があるか調べる
+     * @param x 横方向の座標
+     * @param y　縦方向の座標
+     * @param col　石の色
+     * @param i 何番目隣なのか
+     * @return result 同じ石があるかどうか
+     */
     public boolean checkUpLCorner(int x, int y, String col, int i) {
         boolean result = false;
         String upLCorner;
@@ -223,6 +318,14 @@ public class Board {
         return result;
     }
 
+    /**
+     * 指定した座標の右斜め下に同じ色の石があるか調べる
+     * @param x 横方向の座標
+     * @param y　縦方向の座標
+     * @param col　石の色
+     * @param i 何番目隣なのか
+     * @return result 同じ石があるかどうか
+     */
     public boolean checkLowRCorner(int x, int y, String col, int i) {
         boolean result = false;
         String lowRCorner = board[x + 1][y - 1];
@@ -233,7 +336,14 @@ public class Board {
         }
         return result;
     }
-
+    /**
+     * 指定した座標の左斜め下に同じ色の石があるか調べる
+     * @param x 横方向の座標
+     * @param y　縦方向の座標
+     * @param col　石の色
+     * @param i 何番目隣なのか
+     * @return result 同じ石があるかどうか
+     */
     public boolean checkLowLCorner(int x, int y, String col, int i) {
         boolean result = false;
         String lowLCorner = board[x + 1][y - 1];
@@ -245,6 +355,13 @@ public class Board {
         return result;
     }
 
+    /**
+     * 横方向に同じ色の石がつながっているかを調べる
+     * @param x 横方向の座標
+     * @param y 縦方向の座標
+     * @param col 石の色
+     * @return numX つながっている石の数
+     */
     public int countX(int x, int y, String col) {
         int numX = 1;
         int num1 = 1;
@@ -268,6 +385,13 @@ public class Board {
         return numX;
     }
 
+    /**
+     * 縦方向に同じ色石がつながっているかを調べる
+     * @param x 横方向の座標
+     * @param y 縦方向の座標
+     * @param col 石の色
+     * @return numX つながっている石の数
+     */
     public int countY(int x, int y, String col) {
         int numY = 1;
         int num1 = 1;
@@ -291,6 +415,13 @@ public class Board {
         return numY;
     }
 
+    /**
+     * 右斜め上から左下にかけて同じ色の石がつながっているかを調べる
+     * @param x 横方向の座標
+     * @param y 縦方向の座標
+     * @param col 石の色
+     * @return numX つながっている石の数
+     */
     public int countRUpCorner(int x, int y, String col) {
         int numRUpCorner = 1;
         int num1 = 1;
@@ -314,6 +445,13 @@ public class Board {
         return numRUpCorner;
     }
 
+    /**
+     * 左斜め上から右下にかけて同じ色の石がつながっているかを調べる
+     * @param x 横方向の座標
+     * @param y 縦方向の座標
+     * @param col 石の色
+     * @return numX つながっている石の数
+     */
     public int countRLowCorner(int x, int y, String col) {
         int numRLowCorner = 1;
         int num1 = 1;
@@ -337,23 +475,28 @@ public class Board {
         return numRLowCorner;
     }
 
+    /**
+     * 5個以上同じ色のいしがつながっているか調べる
+     * @param x 横方向の座標
+     * @param y 縦方向の座標
+     * @param col 石の色
+     * @return judge 5個以上あるかどうか
+     */
     public boolean judge(int x, int y, String col) {
         int numX = countX(x, y, col);
         int numY = countY(x, y, col);
         int numRUpCorner = countRUpCorner(x, y, col);
         int numRLowCorner = countRUpCorner(x, y, col);
-        boolean result = false;
         System.out.println(numX);
         System.out.println(numY);
         System.out.println(numRUpCorner);
         System.out.println(numRLowCorner);
-        result = true;
         if (numX >= 5 || numY >= 5 || numRUpCorner >= 5 || numRLowCorner >= 5) {
             System.out.println(numX + numY + numRUpCorner + numRLowCorner);
-            result = true;
+            this.judge = true;
         } else {
-            result = false;
+            this.judge = false;
         }
-        return result;
+        return this.judge;
     }
 }
